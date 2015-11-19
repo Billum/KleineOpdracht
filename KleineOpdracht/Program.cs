@@ -11,6 +11,15 @@ namespace KleineOpdracht
 {
     class Program
     {
+        public delegate void LoopSum(SumTermBuilder sum);
+
+        public static Term makeSum(int capacity, LoopSum sumDelegate)
+        {
+            var sum = new SumTermBuilder(capacity);
+            sumDelegate(sum);
+            return sum.ToTerm();
+        }
+
         static void Main(string[] args)
         {
             SolverContext context = SolverContext.GetContext();
@@ -27,7 +36,7 @@ namespace KleineOpdracht
             Decision jaar3 = new Decision(Domain.IntegerNonnegative, "Jaar 3");
             Decision jaar4 = new Decision(Domain.IntegerNonnegative, "Jaar 4");
 
-            Decision[,] x = new Decision[7,5];
+            Decision[,] x = new Decision[7, 5];
             x[1, 1] = new Decision(Domain.RealNonnegative, "(1,1)");
             x[1, 2] = new Decision(Domain.RealNonnegative, "(1,2)");
             x[1, 3] = new Decision(Domain.RealNonnegative, "(1,3)");
@@ -56,8 +65,25 @@ namespace KleineOpdracht
             Decision z = new Decision(Domain.RealNonnegative, "Lening");
             Decision w = new Decision(Domain.RealNonnegative, "Schuld aan derden");
 
+            Action<SumTermBuilder,int> sumYears = (sum, year) =>
+            {
+                for (int i = 1; i < 7; i++)
+                    for (int j = 1; j <= year; j++)
+                        sum.Add(x[i, j]);
+            };
 
-            model.AddDecisions(y,z,w);
+            model.AddConstraint("test",
+                makeSum(6, sum =>
+                    {
+                        for (int i = 1; i < 4; i++)
+                            sumYears(sum, i);
+                        for (int i = 1; i < 7; i++)
+                            sum.Add(x[i, 1]);
+                    }));
+
+            
+
+            model.AddDecisions(y, z, w);
         }
     }
 }
