@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.SolverFoundation;
 using Microsoft.SolverFoundation.Common;
-using Microsoft.SolverFoundation.Services;
+using Microsoft.SolverFoundation.Services;
+
 
 namespace KleineOpdracht
 {
@@ -63,10 +64,16 @@ namespace KleineOpdracht
 
             var maxlening = 50;
 
+            model.AddConstraints("Tabel", x[1, 1] == -50,  x[1, 2] == -80,  x[1, 3] == 20,   x[1, 4] == 150,
+                                          x[2, 1] == -100, x[2, 2] == -50,  x[2, 3] == -20,  x[2, 4] == 210,
+                                          x[3, 1] == -60,  x[3, 2] == -60,  x[3, 3] == -60,  x[3, 4] == 220,
+                                          x[4, 1] == -50,  x[4, 2] == -100, x[4, 3] == -150, x[4, 4] == 350,
+                                          x[5, 1] == -170, x[5, 2] == -40,  x[5, 3] == 50,   x[5, 4] == 200,
+                                          x[6, 1] == -16,  x[6, 2] == -25,  x[6, 3] == -40,  x[6, 4] == 100);
             model.AddConstraints("Lening", z[1] <= maxlening,
-                                                    z[2] <= maxlening,
-                                                    z[3] <= maxlening,
-                                                    z[4] <= maxlening);
+                                           z[2] <= maxlening,
+                                           z[3] <= maxlening,
+                                           z[4] <= maxlening);
             model.AddConstraint("Schuld aan derden", w[1] + w[2] + w[3] + w[4] <= 10);
         }
     }
