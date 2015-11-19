@@ -20,13 +20,12 @@ namespace KleineOpdracht
             sumDelegate(sum);
             return sum.ToTerm();
         }
-
         static void Main(string[] args)
         {
             SolverContext context = SolverContext.GetContext();
             Model model = context.CreateModel();
-       
-            Decision[,] x = new Decision[7, 5];
+
+            Decision[,] x = new Decision[7,5];
             Decision[] y = new Decision[5];
             Decision[] z = new Decision[5];
             Decision[] w = new Decision[5];
@@ -73,7 +72,6 @@ namespace KleineOpdracht
 
             var maxlening = 50;
 
-<<<<<<< HEAD
             model.AddConstraints("Tabel", x[1, 1] == -50,  x[1, 2] == -80,  x[1, 3] == 20,   x[1, 4] == 150,
                                           x[2, 1] == -100, x[2, 2] == -50,  x[2, 3] == -20,  x[2, 4] == 210,
                                           x[3, 1] == -60,  x[3, 2] == -60,  x[3, 3] == -60,  x[3, 4] == 220,
@@ -85,17 +83,9 @@ namespace KleineOpdracht
                                            z[3] <= maxlening,
                                            z[4] <= maxlening);
             model.AddConstraint("Schuld aan derden", w[1] + w[2] + w[3] + w[4] <= 10);
-=======
-            model.AddConstraints("Lening",
-                z[1] <= maxlening,
-                z[2] <= maxlening,
-                z[3] <= maxlening,
-                z[4] <= maxlening);
-            
-            model.AddConstraint("Schuld aan derden",
-                w[1] + w[2] + w[3] + w[4] <= 10);
 
-            Action<SumTermBuilder,int> sumYears = (sum, year) =>
+
+            Action<SumTermBuilder, int> sumYears = (sum, year) =>
             {
                 for (int i = 1; i < 7; i++)
                     for (int j = 1; j <= year; j++)
@@ -104,13 +94,12 @@ namespace KleineOpdracht
 
             model.AddConstraint("test",
                 makeSum(6, sum =>
-                    {
-                        for (int i = 1; i < 4; i++)
-                            sumYears(sum, i);
-                        for (int i = 1; i < 7; i++)
-                            sum.Add(x[i, 1]);
-                    }));
->>>>>>> 4ccc90f94100ae8f5e0451eb5fb846b8fbf0ad3f
+                {
+                    for (int i = 1; i < 4; i++)
+                        sumYears(sum, i);
+                    for (int i = 1; i < 7; i++)
+                        sum.Add(x[i, 1]);
+                }));
         }
     }
 }
