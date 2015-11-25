@@ -62,11 +62,12 @@ namespace KleineOpdracht
             var a0 = -50 * x[0] - 100 * x[1] - 60 * x[2] - 50 * x[3] - 170 * x[4] - 16 * x[5]; // jaar 1
             var a1 = -80 * x[0] - 50 * x[1] - 60 * x[2] - 100 * x[3] - 40 * x[4] - 25 * x[5];  // jaar 2
             var a2 = 20 * x[0] - 20 * x[1] - 60 * x[2] - 150 * x[3] + 50 * x[4] - 40 * x[5];   // jaar 3
+            var a3 = 150 * x[0] + 210 * x[1] + 220 * x[2] + 350 * x[3] + 200 * x[4] + 100 * x[5]; // jaar 4
 
             model.AddConstraints("Uitgaven_uitkeringen",
                 -a0 <= 300,
-                -a1 <= 400 - a0,
-                -a2 <= 600 - (a0 + a1));
+                -a1 <= 400 + a0,
+                -a2 <= 600 + a0 + a1);
 
             model.AddConstraints("Projecten", 
                 x[0] <= 1, x[1] <= 1, x[2] <= 1,
@@ -74,19 +75,19 @@ namespace KleineOpdracht
 
             model.AddConstraints("Leningen", 
                 y[0] <= 50,
-                y[1] <= 50 + 0.20 * (300 * a0 + y[0]),
-                y[2] <= 50 + 0.20 * (400 * a1 + y[1] + z[1]));
+                y[1] <= 50 + 0.20 * (300 * -a0 + y[0] - z[0]),
+                y[2] <= 50 + 0.20 * (400 * -a1 + y[1] - z[1]));
 
             model.AddConstraints("Geld_uitzetten",
-                z[0] <= 300 + y[0] - (300 * a0 + w[0]),
-                z[1] <= 100 + y[1] + 1.08 * z[0] - (100 * a1 + w[1]),
-                z[2] <= 200 + y[2] + 1.08 * z[1] - (200 * a2 + w[2]));
+                z[0] <= 300 + y[0] -               (300 * -a0 + w[0]),
+                z[1] <= 100 + y[1] + 1.08 * z[0] - (100 * -a1 + w[1]),
+                z[2] <= 200 + y[2] + 1.08 * z[1] - (200 * -a2 + w[2]));
 
             model.AddConstraints("Schuld_aan_derden",
                 sums(w, 3) <= 10,
-                w[0] <= 300 + y[0]               - (300 * a0 + z[0]),
-                w[1] <= 100 + y[1] + 1.08 * z[0] - (100 * a1 + (10 - w[0]) + z[1]),
-                w[2] <= 200 + y[2] + 1.08 * z[1] - (200 * a2 + (10 - sums(w, 2)) + z[2]));
+                w[0] <= 300 + y[0]               - (300 * -a0 + z[0]),
+                w[1] <= 100 + y[1] + 1.08 * z[0] - (100 * -a1 + (10 - w[0]) + z[1]),
+                w[2] <= 200 + y[2] + 1.08 * z[1] - (200 * -a2 + (10 - sums(w, 2)) + z[2]));
 
             model.AddConstraints("Groter_dan_nul",
                 x[0] >= 0, x[1] >= 0, x[2] >= 0, x[3] >= 0, x[4] >= 0, x[5] >= 0,
@@ -95,10 +96,10 @@ namespace KleineOpdracht
                 w[0] >= 0, w[1] >= 0, w[2] >= 0);
 
             model.AddGoal("Maximalisatie", GoalKind.Maximize,
-                150 * x[0] + 210 * x[1] + 220 * x[2] + 350 * x[3] + 200 * x[4] + 100 * x[5] 
-                - (sums(y, 3)) * 1.12 
-                - (sums(z, 3)) * 1.08 
-                - (sums(w, 3) + (10 - sums(w,3)) * 0.11));
+                a0 + a1 + a2 + a3
+                + (z[2]) * 1.08
+                - (y[2]) * 1.12
+                - ((10 - sums(w, 3)) * 0.11));
 
             Solution sol = context.Solve(new SimplexDirective());
             Console.WriteLine(sol.GetReport());
