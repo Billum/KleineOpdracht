@@ -64,9 +64,9 @@ namespace KleineOpdracht
             var a2 = 20 * x[0] - 20 * x[1] - 60 * x[2] - 150 * x[3] + 50 * x[4] - 40 * x[5];   // jaar 3
 
             model.AddConstraints("Uitgaven_uitkeringen",
-                a0 <= 300,
-                a1 <= 400 - a0,
-                a2 <= 600 - (a0 + a1));
+                -a0 <= 300,
+                -a1 <= 400 - a0,
+                -a2 <= 600 - (a0 + a1));
 
             model.AddConstraints("Projecten", 
                 x[0] <= 1, x[1] <= 1, x[2] <= 1,
