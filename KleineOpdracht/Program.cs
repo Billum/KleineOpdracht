@@ -20,86 +20,83 @@ namespace KleineOpdracht
             sumDelegate(sum);
             return sum.ToTerm();
         }
+
+        public static Term sumSigma(Decision[] d, int max)
+        {
+            return makeSum(max, sum =>
+            {
+                for (int i = 1; i <= max; i++)
+                    sum.Add(d[i]);
+            });
+        }
+        public static Term sumSigma(Decision[,] d, int max)
+        {
+            return makeSum(max, sum =>
+            {
+                for (int i = 1; i < d.GetLength(0) ; i++ )
+                    for (int j = 1; j <= max; j++)
+                        sum.Add(d[i,j]);
+            });
+        }
+
         static void Main(string[] args)
         {
             SolverContext context = SolverContext.GetContext();
             Model model = context.CreateModel();
 
-            Decision[,] x = new Decision[7,5];
-            Decision[] y = new Decision[5];
-            Decision[] z = new Decision[5];
-            Decision[] w = new Decision[5];
+            Decision[] x = new Decision[6]; // projecten
+            Decision[] y = new Decision[3]; // lening
+            Decision[] z = new Decision[3]; // geld uitzetten
+            Decision[] w = new Decision[3]; // schuld aan derden
 
-            model.AddDecision(x[1, 1] = new Decision(Domain.RealNonnegative, "x(1,1)"));
-            model.AddDecision(x[1, 2] = new Decision(Domain.RealNonnegative, "x(1,2)"));
-            model.AddDecision(x[1, 3] = new Decision(Domain.RealNonnegative, "x(1,3)"));
-            model.AddDecision(x[1, 4] = new Decision(Domain.RealNonnegative, "x(1,4)"));
-            model.AddDecision(x[2, 1] = new Decision(Domain.RealNonnegative, "x(2,1)"));
-            model.AddDecision(x[2, 2] = new Decision(Domain.RealNonnegative, "x(2,2)"));
-            model.AddDecision(x[2, 3] = new Decision(Domain.RealNonnegative, "x(2,3)"));
-            model.AddDecision(x[2, 4] = new Decision(Domain.RealNonnegative, "x(2,4)"));
-            model.AddDecision(x[3, 1] = new Decision(Domain.RealNonnegative, "x(3,1)"));
-            model.AddDecision(x[3, 2] = new Decision(Domain.RealNonnegative, "x(3,2)"));
-            model.AddDecision(x[3, 3] = new Decision(Domain.RealNonnegative, "x(3,3)"));
-            model.AddDecision(x[3, 4] = new Decision(Domain.RealNonnegative, "x(3,4)"));
-            model.AddDecision(x[4, 1] = new Decision(Domain.RealNonnegative, "x(4,1)"));
-            model.AddDecision(x[4, 2] = new Decision(Domain.RealNonnegative, "x(4,2)"));
-            model.AddDecision(x[4, 3] = new Decision(Domain.RealNonnegative, "x(4,3)"));
-            model.AddDecision(x[4, 4] = new Decision(Domain.RealNonnegative, "x(4,4)"));
-            model.AddDecision(x[5, 1] = new Decision(Domain.RealNonnegative, "x(5,1)"));
-            model.AddDecision(x[5, 2] = new Decision(Domain.RealNonnegative, "x(5,2)"));
-            model.AddDecision(x[5, 3] = new Decision(Domain.RealNonnegative, "x(5,3)"));
-            model.AddDecision(x[5, 4] = new Decision(Domain.RealNonnegative, "x(5,4)"));
-            model.AddDecision(x[6, 1] = new Decision(Domain.RealNonnegative, "x(6,1)"));
-            model.AddDecision(x[6, 2] = new Decision(Domain.RealNonnegative, "x(6,2)"));
-            model.AddDecision(x[6, 3] = new Decision(Domain.RealNonnegative, "x(6,3)"));
-            model.AddDecision(x[6, 4] = new Decision(Domain.RealNonnegative, "x(6,4)"));
+            model.AddDecision(x[0] = new Decision(Domain.RealNonnegative, "x_0"));
+            model.AddDecision(x[1] = new Decision(Domain.RealNonnegative, "x_1"));
+            model.AddDecision(x[2] = new Decision(Domain.RealNonnegative, "x_2"));
+            model.AddDecision(x[3] = new Decision(Domain.RealNonnegative, "x_3"));
+            model.AddDecision(x[4] = new Decision(Domain.RealNonnegative, "x_4"));
+            model.AddDecision(x[5] = new Decision(Domain.RealNonnegative, "x_5"));
 
-            model.AddDecision(y[1] = new Decision(Domain.RealNonnegative, "y(1)"));
-            model.AddDecision(y[2] = new Decision(Domain.RealNonnegative, "y(2)"));
-            model.AddDecision(y[3] = new Decision(Domain.RealNonnegative, "y(3)"));
-            model.AddDecision(y[4] = new Decision(Domain.RealNonnegative, "y(4)"));
+            model.AddDecision(y[0] = new Decision(Domain.RealNonnegative, "y_0"));
+            model.AddDecision(y[1] = new Decision(Domain.RealNonnegative, "y_1"));
+            model.AddDecision(y[2] = new Decision(Domain.RealNonnegative, "y_2"));
 
-            model.AddDecision(z[1] = new Decision(Domain.RealNonnegative, "z(1)"));
-            model.AddDecision(z[2] = new Decision(Domain.RealNonnegative, "z(2)"));
-            model.AddDecision(z[3] = new Decision(Domain.RealNonnegative, "z(3)"));
-            model.AddDecision(z[4] = new Decision(Domain.RealNonnegative, "z(4)"));
+            model.AddDecision(z[0] = new Decision(Domain.RealNonnegative, "z_0"));
+            model.AddDecision(z[1] = new Decision(Domain.RealNonnegative, "z_1"));
+            model.AddDecision(z[2] = new Decision(Domain.RealNonnegative, "z_2"));
 
-            model.AddDecision(w[1] = new Decision(Domain.RealNonnegative, "w(1)"));
-            model.AddDecision(w[2] = new Decision(Domain.RealNonnegative, "w(2)"));
-            model.AddDecision(w[3] = new Decision(Domain.RealNonnegative, "w(3)"));
-            model.AddDecision(w[4] = new Decision(Domain.RealNonnegative, "w(4)"));
+            model.AddDecision(w[0] = new Decision(Domain.RealNonnegative, "w_0"));
+            model.AddDecision(w[1] = new Decision(Domain.RealNonnegative, "w_1"));
+            model.AddDecision(w[2] = new Decision(Domain.RealNonnegative, "w_2"));
 
-            var maxlening = 50;
+            var a0 = -50 * x[0] - 100 * x[1] - 60 * x[2] - 50 * x[3] - 170 * x[4] - 16 * x[5];
+            var a1 = -80 * x[0] - 50 * x[1] - 60 * x[2] - 100 * x[3] - 40 * x[4] - 25 * x[5];
+            var a2 = 20 * x[0] - 20 * x[1] - 60 * x[2] - 150 * x[3] + 50 * x[4] - 40 * x[5];
 
-            model.AddConstraints("Tabel", x[1, 1] == -50,  x[1, 2] == -80,  x[1, 3] == 20,   x[1, 4] == 150,
-                                          x[2, 1] == -100, x[2, 2] == -50,  x[2, 3] == -20,  x[2, 4] == 210,
-                                          x[3, 1] == -60,  x[3, 2] == -60,  x[3, 3] == -60,  x[3, 4] == 220,
-                                          x[4, 1] == -50,  x[4, 2] == -100, x[4, 3] == -150, x[4, 4] == 350,
-                                          x[5, 1] == -170, x[5, 2] == -40,  x[5, 3] == 50,   x[5, 4] == 200,
-                                          x[6, 1] == -16,  x[6, 2] == -25,  x[6, 3] == -40,  x[6, 4] == 100);
-            model.AddConstraints("Lening", z[1] <= maxlening,
-                                           z[2] <= maxlening,
-                                           z[3] <= maxlening,
-                                           z[4] <= maxlening);
-            model.AddConstraint("Schuld aan derden", w[1] + w[2] + w[3] + w[4] <= 10);
+            model.AddConstraints("uitgaven_uitkering", 
+                x[0] <= 1, x[1] <= 1, x[2] <= 1,
+                x[3] <= 1, x[4] <= 1, x[5] <= 1);
 
+            model.AddConstraints("lening", 
+                y[0] <= 50,
+                y[1] <= 50 + 0.20 * (300 * a0 + y[0]),
+                y[2] <= 50 + 0.20 * (400 * a1 + y[1] + z[1]));
 
-            Action<SumTermBuilder, int> sumYears = (sum, year) =>
-            {
-                for (int i = 1; i < 7; i++)
-                    for (int j = 1; j <= year; j++)
-                        sum.Add(x[i, j]);
-            };
+            model.AddConstraints("geld_uitzetten",
+                z[0] <= 300 + y[0] - 300 * a0 - w[1],
+                z[1] <= 100 + y[1] + 1.08 * z[0] - 100 * a1 - w[1],
+                z[2] <= 200 + y[2] + 1.08 * z[1] - 200 * a2 - w[2]);
 
-            model.AddConstraint("test",
-                makeSum(6, sum =>
-                {
-                    for (int i = 1; i < 4; i++)
-                        sumYears(sum, i);
-                    for (int i = 1; i < 7; i++)
-                        sum.Add(x[i, 1]);
-                }));
+            model.AddConstraints("schuld_aan_derden",
+                w[0] + w[1] + w[2] <= 10,
+                w[0] <= 300 + y[0] - 300 * a0 - z[0],
+                w[1] <= 100 + y[1] + 1.08 * z[0] - 100 * a1 - (10 - w[0]) - z[1],
+                w[2] <= 200 + y[2] + 1.08 * z[1] - 200 * a2 - (10 - w[0] - w[1]) - z[2]);
+
+            model.AddConstraints("groter_dan_nul",
+                x[0] >= 0, x[1] >= 0, x[2] >= 0, x[3] >= 0, x[4] >= 0, x[5] >= 0,
+                y[0] >= 0, y[1] >= 0, y[2] >= 0,
+                z[0] >= 0, z[1] >= 0, z[2] >= 0,
+                w[0] >= 0, w[1] >= 0, w[2] >= 0);
         }
     }
 }
