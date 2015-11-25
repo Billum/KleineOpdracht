@@ -10,7 +10,7 @@ using Microsoft.SolverFoundation.Services;
 
 namespace KleineOpdracht
 {
-    class Program
+    static class Program
     {
         public delegate void LoopSum(SumTermBuilder sum);
 
@@ -75,70 +75,118 @@ namespace KleineOpdracht
                 x[0] <= 1, x[1] <= 1, x[2] <= 1,
                 x[3] <= 1, x[4] <= 1, x[5] <= 1,
                 y[0] >= 0, y[1] >= 0, y[2] >= 0, y[3] >= 0,
-                z[0] >= 0, z[1] >= 0, z[2] >= 0, z[3] >= 0
-                //w[0] >= 0, w[1] >= 0, w[2] >= 0, w[3] >= 0
-                );
+                z[0] >= 0, z[1] >= 0, z[2] >= 0, z[3] >= 0,
+                w[0] >= 0, w[1] >= 0, w[2] >= 0, w[3] >= 0
+            );
 
             model.AddConstraints(null,
-                -a0 <= 300 + y[0],// - w[0],
-                -a1 <= 100 + (300 + a0) + y[1] - y[0] * 1.12,// - w[1] - 0.11 * (10 - sums(w, 1)),
-                -a2 <= 200 + (300 + a0) + (100 + a1) + y[2] - y[1] * 1.12// - w[2] - 0.11 * (10 - sums(w, 2))
-                );
+                -a0 <= 300
+                        + y[0]
+                        - w[0]
+                        - z[0],
+                -a1 <= 100 + a0
+                        + y[1] - y[0] * 1.12
+                        - w[1] - 0.11 * (10 - w[0])
+                        - z[1] + 1.08 * z[0],
+                -a2 <= 200 + a0 + a1
+                        + y[2] - y[1] * 1.12
+                        - w[2] - 0.11 * (10 - w[1])
+                        - z[2] + 1.08 * z[1]
+            );
 
             model.AddConstraints(null,
                 y[0] <= 50,
                 y[1] <= 50 - 0.2 * a0,
                 y[2] <= 50 - 0.2 * (a0 + a1),
                 y[3] <= 50 - 0.2 * (a0 + a1 + a2)
-                );
+            );
 
-            //model.AddConstraints(null,
-            //w[0] + w[1] + w[2] + w[3] <= 10
-            //);
+            model.AddConstraints(null,
+                w[0] <= 10,
+                w[1] <= 10 + 0.11 * (10 - w[0]),
+                w[2] <= 10 + 0.11 * (10 - w[0] - w[1]),
+                w[3] <= 10 + 0.11 * (10 - w[0] - w[1] - w[2]),
+                sums(w, 4) <= 10 * Math.Pow(1.11, 3)
+            );
 
             model.AddGoal("Goal", GoalKind.Maximize,
-                a3                                  // inkomsten jaar 4  
-                - 1.12 * y[2] + y[3]                // lening jaar 3 aflossen + lening jaar
-                                                    //- w[3] - 0.11 * (10 - sums(w,3))    // schuld aan derden aflossen - rente schuld aan derden
-                );
+                a3                                        // inkomsten jaar 4  
+                - 1.12 * y[2] + y[3]                      // lening jaar 3 aflossen + lening jaar
+                - sums(w, 3) - 0.11 * (10 - sums(w, 3))   // schuld aan derden aflossen - rente schuld aan derden
+                - z[3] + 1.08 * z[2]                      // geld uitgezet jaar 4 + rente jaar 3
+            );
 
             Solution solution = context.Solve(new SimplexDirective());
             Console.WriteLine(solution.GetReport());
 
             // check the solution by simulating
-            Simulate(x[0].ToDouble(),
-                x[1].ToDouble(),
-                x[2].ToDouble(),
-                x[3].ToDouble(),
-                x[4].ToDouble(),
-                x[5].ToDouble(),
-                1.12 * y[2].ToDouble() - y[3].ToDouble());
+            Simulate(d2d(x), d2d(y), d2d(z), d2d(w));
         }
+
+        public static double[] d2d(Decision[] d)
+        {
+            var result = new double[d.Length];
+            for (int i = 0; i < d.Length; i++)
+                result[i] = d[i].ToDouble();
+            return result;
+        }
+
+        public static void print(double[] d)
+        {
+            foreach (var n in d)
+                Console.WriteLine(double.IsNaN(n) ? "" : n.ToString());
+        }
+
         public static void Simulate(
-            double x0,
-            double x1,
-            double x2,
-            double x3,
-            double x4,
-            double x5,
-            double sub = 0.0
+            double[] x, //projecten
+            double[] y, //lening
+            double[] z, //uitzetten
+            double[] w  //schuld
             )
         {
-            var geld1 = 300;
-            Console.WriteLine(geld1);
-            var kosten1 = -50 * x0 - 100 * x1 - 60 * x2 - 50 * x3 - 170 * x4 - 16 * x5;
-            Console.WriteLine(kosten1);
-            var geld2 = 100 + (geld1 + kosten1);
-            Console.WriteLine(geld2);
-            var kosten2 = -80 * x0 - 50 * x1 - 60 * x2 - 100 * x3 - 40 * x4 - 25 * x5;
-            Console.WriteLine(kosten2);
-            var geld3 = 200 + (geld2 + kosten2);
-            Console.WriteLine(geld3);
-            var kosten3 = 20 * x0 - 20 * x1 - 60 * x2 - 150 * x3 + 50 * x4 - 40 * x5;
-            Console.WriteLine(kosten3);
-            var geld4 = 150 * x0 + 210 * x1 + 220 * x2 + 350 * x3 + 200 * x4 + 100 * x5;
-            Console.WriteLine(geld4);
-            Console.WriteLine(geld4 - sub);
+            var results = new List<double>();
+
+            var geld1 = 300.0;
+            geld1 += y[0];
+            geld1 -= z[0];
+            geld1 -= w[0];
+            var winst1 = -50 * x[0] - 100 * x[1] - 60 * x[2] - 50 * x[3] - 170 * x[4] - 16 * x[5];
+            winst1 -= 1.12 * y[0];
+            winst1 += 1.08 * z[0];
+
+            var geld2 = 100.0;
+            geld2 += winst1;
+            geld2 += y[1];
+            geld2 -= 1.08 * z[0] + z[1];
+            geld2 -= w[1];
+            var winst2 = -80 * x[0] - 50 * x[1] - 60 * x[2] - 100 * x[3] - 40 * x[4] - 25 * x[5];
+            winst2 -= 1.12 * y[1];
+            winst2 += 1.08 * z[1];
+
+            var geld3 = 200.0;
+            geld3 += winst2;
+            geld3 += y[2];
+            geld3 -= 1.08 * z[1] + z[2];
+            geld3 -= w[2];
+            var winst3 = 20 * x[0] - 20 * x[1] - 60 * x[2] - 150 * x[3] + 50 * x[4] - 40 * x[5];
+            winst3 -= 1.12 * y[2];
+            winst3 += 1.08 * z[2];
+
+            var geld4 = 150 * x[0] + 210 * x[1] + 220 * x[2] + 350 * x[3] + 200 * x[4] + 100 * x[5];
+            geld4 += y[3];
+            geld4 -= 1.08 * z[2] + z[3];
+            geld4 -= w[3];
+
+            print(new double[]
+            {
+                geld1, winst1,
+                double.NaN,
+                geld2, winst2,
+                double.NaN,
+                geld3, winst3,
+                double.NaN,
+                geld4
+            });
         }
     }
 }
