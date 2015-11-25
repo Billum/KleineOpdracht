@@ -21,21 +21,12 @@ namespace KleineOpdracht
             return sum.ToTerm();
         }
 
-        public static Term sumSigma(Decision[] d, int max)
+        public static Term sums(Decision[] d, int year)
         {
-            return makeSum(max, sum =>
+            return makeSum(year, sum =>
             {
-                for (int i = 1; i <= max; i++)
+                for (int i = 0; i < year; i++)
                     sum.Add(d[i]);
-            });
-        }
-        public static Term sumSigma(Decision[,] d, int max)
-        {
-            return makeSum(max, sum =>
-            {
-                for (int i = 1; i < d.GetLength(0) ; i++ )
-                    for (int j = 1; j <= max; j++)
-                        sum.Add(d[i,j]);
             });
         }
 
@@ -44,10 +35,10 @@ namespace KleineOpdracht
             SolverContext context = SolverContext.GetContext();
             Model model = context.CreateModel();
 
-            Decision[] x = new Decision[6]; // projecten
-            Decision[] y = new Decision[3]; // lening
-            Decision[] z = new Decision[3]; // geld uitzetten
-            Decision[] w = new Decision[3]; // schuld aan derden
+            Decision[] x = new Decision[6];
+            Decision[] y = new Decision[3];
+            Decision[] z = new Decision[3];
+            Decision[] w = new Decision[3];
 
             model.AddDecision(x[0] = new Decision(Domain.RealNonnegative, "project___1"));
             model.AddDecision(x[1] = new Decision(Domain.RealNonnegative, "project___2"));
@@ -87,10 +78,10 @@ namespace KleineOpdracht
                 z[2] <= 200 + y[2] + 1.08 * z[1] - (200 * a2 + w[2]));
 
             model.AddConstraints("schuld_aan_derden",
-                w[0] + w[1] + w[2] <= 10,
+                sums(w, 3) <= 10,
                 w[0] <= 300 + y[0]               - (300 * a0 + z[0]),
                 w[1] <= 100 + y[1] + 1.08 * z[0] - (100 * a1 + (10 - w[0]) + z[1]),
-                w[2] <= 200 + y[2] + 1.08 * z[1] - (200 * a2 + (10 - (w[0] + w[1])) + z[2]));
+                w[2] <= 200 + y[2] + 1.08 * z[1] - (200 * a2 + (10 - sums(w, 2)) + z[2]));
 
             model.AddConstraints("groter_dan_nul",
                 x[0] >= 0, x[1] >= 0, x[2] >= 0, x[3] >= 0, x[4] >= 0, x[5] >= 0,
@@ -105,9 +96,9 @@ namespace KleineOpdracht
 
             model.AddGoal("winst", GoalKind.Maximize,
                 150 * x[0] + 210 * x[1] + 220 * x[2] + 350 * x[3] + 200 * x[4] + 100 * x[5] 
-                - (y[0] + y[1] + y[2]) * 1.12 
-                - (z[0] + z[1] + z[2]) * 1.08 
-                - ((w[0] + w[1] + w[2]) + (10 - (w[0] + w[1] + w[2])) * 0.11));
+                - (sums(y, 3)) * 1.12 
+                - (sums(z, 3)) * 1.08 
+                - (sums(w, 3) + (10 - sums(w,3)) * 0.11));
 
             Solution sol = context.Solve(new SimplexDirective());
             Console.WriteLine(sol.GetReport());
