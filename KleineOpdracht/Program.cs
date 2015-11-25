@@ -72,7 +72,7 @@ namespace KleineOpdracht
             var a1 = -80 * x[0] - 50 * x[1] - 60 * x[2] - 100 * x[3] - 40 * x[4] - 25 * x[5];
             var a2 = 20 * x[0] - 20 * x[1] - 60 * x[2] - 150 * x[3] + 50 * x[4] - 40 * x[5];
 
-            model.AddConstraints("uitgaven_uitkering", 
+            model.AddConstraints("projecten", 
                 x[0] <= 1, x[1] <= 1, x[2] <= 1,
                 x[3] <= 1, x[4] <= 1, x[5] <= 1);
 
@@ -97,6 +97,11 @@ namespace KleineOpdracht
                 y[0] >= 0, y[1] >= 0, y[2] >= 0,
                 z[0] >= 0, z[1] >= 0, z[2] >= 0,
                 w[0] >= 0, w[1] >= 0, w[2] >= 0);
+
+            model.AddConstraints("uitgaven_uitkeringen",
+                a0 <= 300,
+                a1 <= 400 - a1,
+                a2 <= 600 - (a1 + a2));
         }
     }
 }
