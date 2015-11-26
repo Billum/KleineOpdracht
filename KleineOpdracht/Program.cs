@@ -37,32 +37,32 @@ namespace KleineOpdracht
             var context = SolverContext.GetContext();
             var model = context.CreateModel();
 
-            var x = new Decision[6]; // projecten
-            var y = new Decision[4]; // leningen
-            var z = new Decision[4]; // geld uitzetten
-            var w = new Decision[4]; // schuld aan derden
+            var x = new Decision[6];                // projecten
+            var y = new Decision[4];                // leningen
+            var z = new Decision[4];                // geld uitzetten
+            var w = new Decision[4];                // schuld aan derden
 
-            model.AddDecision(x[0] = new Decision(Domain.RealNonnegative, "Project_____1"));
-            model.AddDecision(x[1] = new Decision(Domain.RealNonnegative, "Project_____2"));
-            model.AddDecision(x[2] = new Decision(Domain.RealNonnegative, "Project_____3"));
-            model.AddDecision(x[3] = new Decision(Domain.RealNonnegative, "Project_____4"));
-            model.AddDecision(x[4] = new Decision(Domain.RealNonnegative, "Project_____5"));
-            model.AddDecision(x[5] = new Decision(Domain.RealNonnegative, "Project_____6"));
+            model.AddDecision(x[0] = new Decision(Domain.RealNonnegative, "Invest_Proj___1"));
+            model.AddDecision(x[1] = new Decision(Domain.RealNonnegative, "Invest_Proj___2"));
+            model.AddDecision(x[2] = new Decision(Domain.RealNonnegative, "Invest_Proj___3"));
+            model.AddDecision(x[3] = new Decision(Domain.RealNonnegative, "Invest_Proj___4"));
+            model.AddDecision(x[4] = new Decision(Domain.RealNonnegative, "Invest_Proj___5"));
+            model.AddDecision(x[5] = new Decision(Domain.RealNonnegative, "Invest_Proj___6"));
 
-            model.AddDecision(y[0] = new Decision(Domain.RealNonnegative, "Lening______1"));
-            model.AddDecision(y[1] = new Decision(Domain.RealNonnegative, "Lening______2"));
-            model.AddDecision(y[2] = new Decision(Domain.RealNonnegative, "Lening______3"));
-            model.AddDecision(y[3] = new Decision(Domain.RealNonnegative, "Lening______4"));
+            model.AddDecision(y[0] = new Decision(Domain.RealNonnegative, "Lening________1"));
+            model.AddDecision(y[1] = new Decision(Domain.RealNonnegative, "Lening________2"));
+            model.AddDecision(y[2] = new Decision(Domain.RealNonnegative, "Lening________3"));
+            model.AddDecision(y[3] = new Decision(Domain.RealNonnegative, "Lening________4"));
 
-            model.AddDecision(z[0] = new Decision(Domain.RealNonnegative, "Geld_uitz___1"));
-            model.AddDecision(z[1] = new Decision(Domain.RealNonnegative, "Geld_uitz___2"));
-            model.AddDecision(z[2] = new Decision(Domain.RealNonnegative, "Geld_uitz___3"));
-            model.AddDecision(z[3] = new Decision(Domain.RealNonnegative, "Geld_uitz___4"));
+            model.AddDecision(z[0] = new Decision(Domain.RealNonnegative, "Geld_uitz_____1"));
+            model.AddDecision(z[1] = new Decision(Domain.RealNonnegative, "Geld_uitz_____2"));
+            model.AddDecision(z[2] = new Decision(Domain.RealNonnegative, "Geld_uitz_____3"));
+            model.AddDecision(z[3] = new Decision(Domain.RealNonnegative, "Geld_uitz_____4"));
 
-            model.AddDecision(w[0] = new Decision(Domain.RealNonnegative, "Schuld______1"));
-            model.AddDecision(w[1] = new Decision(Domain.RealNonnegative, "Schuld______2"));
-            model.AddDecision(w[2] = new Decision(Domain.RealNonnegative, "Schuld______3"));
-            model.AddDecision(w[3] = new Decision(Domain.RealNonnegative, "Schuld______4"));
+            model.AddDecision(w[0] = new Decision(Domain.RealNonnegative, "Schuld_afb____1"));
+            model.AddDecision(w[1] = new Decision(Domain.RealNonnegative, "Schuld_afb____2"));
+            model.AddDecision(w[2] = new Decision(Domain.RealNonnegative, "Schuld_afb____3"));
+            model.AddDecision(w[3] = new Decision(Domain.RealNonnegative, "Schuld_afb____4"));
 
             var a0 = -50 * x[0] - 100 * x[1] - 60 * x[2] - 50 * x[3] - 170 * x[4] - 16 * x[5];
             var a1 = -80 * x[0] - 50 * x[1] - 60 * x[2] - 100 * x[3] - 40 * x[4] - 25 * x[5];
@@ -119,10 +119,10 @@ namespace KleineOpdracht
             );
 
             model.AddGoal("Goal", GoalKind.Maximize,
-                a3                                          // inkomsten/uitkering jaar 4  
-                - 1.12 * y[2]                               // lening jaar 3 aflossen
-                + 1.08 * z[2]                               // rente uitgezet geld jaar 3
-                - w[3] - 0.11 * (10 - sums(w, 3))           // schuld aflossen jaar 4 - rente schuld aan derden
+                a3                                          // inkomsten/uitkering van jaar 4  
+                - 1.12 * y[2]// + y[3]                        // lening jaar 3 aflossen (+ lening in jaar 4)
+                + 1.08 * z[2]                               // rente uitgezet geld van jaar 3
+                - w[3] - 0.11 * (10 - sums(w, 3))           // schuld aflossen van jaar 4 - rente overig schuld aan derden
             );
 
             Solution solution = context.Solve(new SimplexDirective());
