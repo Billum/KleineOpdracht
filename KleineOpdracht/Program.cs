@@ -114,22 +114,19 @@ namespace KleineOpdracht
                 w[1] <= 10 + 0.11 * (10 - sums(w, 1)),
                 w[2] <= 10 + 0.11 * (10 - sums(w, 2)),
                 w[3] <= 10 + 0.11 * (10 - sums(w, 3)),
+                //sums(w, 4) >= 10,                           // als schuld moet worden afbetaald
                 sums(w, 4) <= 10 * Math.Pow(1.11, 3)
             );
 
             model.AddGoal("Goal", GoalKind.Maximize,
-                a3                                          // inkomsten jaar 4  
+                a3                                          // inkomsten/uitkering jaar 4  
                 - 1.12 * y[2]                               // lening jaar 3 aflossen
-                - 1.08 * z[2]                               // rente uitgezet geld jaar 3
-                - w[3] - 0.11 * (10 - sums(w, 3))           // schuld aan derden aflossen - rente schuld aan derden
+                + 1.08 * z[2]                               // rente uitgezet geld jaar 3
+                - w[3] - 0.11 * (10 - sums(w, 3))           // schuld aflossen jaar 4 - rente schuld aan derden
             );
 
             Solution solution = context.Solve(new SimplexDirective());
             Console.WriteLine(solution.GetReport());
-
-            Console.WriteLine(x[3]);
-            Console.WriteLine(z[0]);
-            Console.WriteLine(y[1]);
 
             // check the solution by simulating
             //Simulate(d2d(x), d2d(y), d2d(z), d2d(w));
